@@ -105,9 +105,7 @@ app.get("/baby-eat/last/formatted", async (req, res) => {
       return res.status(404).json({ message: "No eat events found" });
     }
 
-    const formattedTimestamp = moment(result.rows[0].timestamp).tz(
-      "Europe/Bucharest"
-    );
+    const formattedTimestamp = moment(result.rows[0].timestamp);
 
     res.json({
       timestamp: formattedTimestamp,
@@ -143,9 +141,7 @@ app.get("/baby-poop/last", async (req, res) => {
       return res.status(404).json({ message: "No poop events found" });
     }
 
-    const formattedTimestamp = moment(result.rows[0].timestamp).tz(
-      "Europe/Bucharest"
-    );
+    const formattedTimestamp = moment(result.rows[0].timestamp);
 
     res.json({
       timestamp: formattedTimestamp.format("DD/MM/YYYY HH:mm:ss"),
