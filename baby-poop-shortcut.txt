@@ -1,0 +1,29 @@
+// iOS Shortcut to post a new baby poop event
+{
+  "actions": [
+    {
+      "type": "web.request",
+      "parameters": {
+        "url": "http://YOUR_SERVER_IP:3024/baby-poop",
+        "method": "POST",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{}"
+      }
+    },
+    {
+      "type": "notification",
+      "parameters": {
+        "title": "Baby Poop",
+        "body": "Poop event recorded"
+      }
+    }
+  ],
+  "name": "Record Baby Poop"
+}
+
+// To use:
+// 1. Replace YOUR_SERVER_IP with your actual server IP
+// 2. Save to Files app
+// 3. Open and tap "Add Shortcut" when prompted 

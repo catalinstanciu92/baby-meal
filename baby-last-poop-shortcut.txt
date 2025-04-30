@@ -1,0 +1,32 @@
+// iOS Shortcut to get the last baby poop event
+{
+  "actions": [
+    {
+      "type": "web.request",
+      "parameters": {
+        "url": "http://YOUR_SERVER_IP:3024/baby-poop/last",
+        "method": "GET"
+      }
+    },
+    {
+      "type": "dictionary.get",
+      "parameters": {
+        "dictionary": "$.result",
+        "key": "timestamp"
+      }
+    },
+    {
+      "type": "notification",
+      "parameters": {
+        "title": "Last Poop",
+        "body": "$.result"
+      }
+    }
+  ],
+  "name": "Get Last Baby Poop"
+}
+
+// To use:
+// 1. Replace YOUR_SERVER_IP with your actual server IP
+// 2. Save to Files app
+// 3. Open and tap "Add Shortcut" when prompted 
