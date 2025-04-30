@@ -17,6 +17,15 @@ self.addEventListener("install", (event) => {
 
 // Cache and return requests
 self.addEventListener("fetch", (event) => {
+  // Skip caching for API requests
+  if (
+    event.request.url.includes("/baby-eat") ||
+    event.request.url.includes("/baby-poop")
+  ) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((response) => {
       // Cache hit - return response
