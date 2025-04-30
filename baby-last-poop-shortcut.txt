@@ -4,7 +4,7 @@
     {
       "type": "web.request",
       "parameters": {
-        "url": "http://YOUR_SERVER_IP:3024/baby-poop/last",
+        "url": "https://baby-meal.aifield.ro/baby-poop/last",
         "method": "GET"
       }
     },

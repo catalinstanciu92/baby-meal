@@ -2,11 +2,13 @@ const express = require("express");
 const { Pool } = require("pg");
 const moment = require("moment-timezone");
 const dotenv = require("dotenv");
+const path = require("path");
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
 
 // PostgreSQL connection setup
 const pool = new Pool({
@@ -40,6 +42,11 @@ async function initializeDb() {
 initializeDb();
 
 // Routes
+// Serve the main page
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
 // Add eating event
 app.post("/baby-eat", async (req, res) => {
   try {

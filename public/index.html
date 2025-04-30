@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Baby Tracker</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        margin: 0;
+        padding: 16px;
+        background-color: #f8f9fa;
+        color: #343a40;
+        max-width: 100%;
+      }
+      .container {
+        max-width: 500px;
+        margin: 0 auto;
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 24px;
+        color: #6c5ce7;
+      }
+      .card {
+        background-color: white;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .card-title {
+        margin-top: 0;
+        margin-bottom: 16px;
+        color: #6c5ce7;
+        font-size: 1.5rem;
+      }
+      .timestamp {
+        font-size: 1.2rem;
+        margin-bottom: 16px;
+        color: #2d3436;
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+      }
+      button {
+        padding: 10px 16px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        flex: 1;
+      }
+      .refresh-btn {
+        background-color: #74b9ff;
+        color: white;
+      }
+      .add-btn {
+        background-color: #6c5ce7;
+        color: white;
+      }
+      .loading {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+      .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        color: white;
+        font-size: 0.8rem;
+        margin-left: 8px;
+        vertical-align: middle;
+      }
+      .badge-success {
+        background-color: #00b894;
+      }
+      .badge-error {
+        background-color: #d63031;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Baby Tracker</h1>
+
+      <div class="card" id="eat-card">
+        <h2 class="card-title">Last Eat</h2>
+        <div class="timestamp" id="eat-timestamp">Loading...</div>
+        <div class="actions">
+          <button class="refresh-btn" id="refresh-eat">Refresh</button>
+          <button class="add-btn" id="add-eat">+ Add New</button>
+        </div>
+      </div>
+
+      <div class="card" id="poop-card">
+        <h2 class="card-title">Last Poop</h2>
+        <div class="timestamp" id="poop-timestamp">Loading...</div>
+        <div class="actions">
+          <button class="refresh-btn" id="refresh-poop">Refresh</button>
+          <button class="add-btn" id="add-poop">+ Add New</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Initial data load
+        fetchLastEat();
+        fetchLastPoop();
+
+        // Add event listeners
+        document
+          .getElementById("refresh-eat")
+          .addEventListener("click", fetchLastEat);
+        document
+          .getElementById("refresh-poop")
+          .addEventListener("click", fetchLastPoop);
+        document.getElementById("add-eat").addEventListener("click", addNewEat);
+        document
+          .getElementById("add-poop")
+          .addEventListener("click", addNewPoop);
+      });
+
+      async function fetchLastEat() {
+        const eatTimestamp = document.getElementById("eat-timestamp");
+        const card = document.getElementById("eat-card");
+
+        try {
+          card.classList.add("loading");
+          const response = await fetch("/baby-eat/last");
+
+          if (response.ok) {
+            const data = await response.json();
+            eatTimestamp.textContent = data.timestamp;
+            showNotification(eatTimestamp, "Updated", "success");
+          } else if (response.status === 404) {
+            eatTimestamp.textContent = "No eat events recorded";
+          } else {
+            throw new Error("Failed to fetch data");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          eatTimestamp.textContent = "Error loading data";
+          showNotification(eatTimestamp, "Failed", "error");
+        } finally {
+          card.classList.remove("loading");
+        }
+      }
+
+      async function fetchLastPoop() {
+        const poopTimestamp = document.getElementById("poop-timestamp");
+        const card = document.getElementById("poop-card");
+
+        try {
+          card.classList.add("loading");
+          const response = await fetch("/baby-poop/last");
+
+          if (response.ok) {
+            const data = await response.json();
+            poopTimestamp.textContent = data.timestamp;
+            showNotification(poopTimestamp, "Updated", "success");
+          } else if (response.status === 404) {
+            poopTimestamp.textContent = "No poop events recorded";
+          } else {
+            throw new Error("Failed to fetch data");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          poopTimestamp.textContent = "Error loading data";
+          showNotification(poopTimestamp, "Failed", "error");
+        } finally {
+          card.classList.remove("loading");
+        }
+      }
+
+      async function addNewEat() {
+        const eatTimestamp = document.getElementById("eat-timestamp");
+        const card = document.getElementById("eat-card");
+
+        try {
+          card.classList.add("loading");
+          const response = await fetch("/baby-eat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (response.ok) {
+            // Refresh the timestamp after adding
+            fetchLastEat();
+            showNotification(eatTimestamp, "Added", "success");
+          } else {
+            throw new Error("Failed to add eat event");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          showNotification(eatTimestamp, "Failed to add", "error");
+          card.classList.remove("loading");
+        }
+      }
+
+      async function addNewPoop() {
+        const poopTimestamp = document.getElementById("poop-timestamp");
+        const card = document.getElementById("poop-card");
+
+        try {
+          card.classList.add("loading");
+          const response = await fetch("/baby-poop", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (response.ok) {
+            // Refresh the timestamp after adding
+            fetchLastPoop();
+            showNotification(poopTimestamp, "Added", "success");
+          } else {
+            throw new Error("Failed to add poop event");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          showNotification(poopTimestamp, "Failed to add", "error");
+          card.classList.remove("loading");
+        }
+      }
+
+      function showNotification(element, message, type) {
+        // Remove any existing badge
+        const existingBadge = element.querySelector(".badge");
+        if (existingBadge) {
+          existingBadge.remove();
+        }
+
+        // Create new badge
+        const badge = document.createElement("span");
+        badge.className = `badge badge-${type}`;
+        badge.textContent = message;
+        element.appendChild(badge);
+
+        // Remove after 2 seconds
+        setTimeout(() => {
+          badge.remove();
+        }, 2000);
+      }
+    </script>
+  </body>
+</html>
